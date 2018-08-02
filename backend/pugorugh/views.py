@@ -7,19 +7,7 @@ from rest_framework.response import Response
 
 from . import models
 from . import serializers
-
-
-def age_filter(ages):
-    filter = []
-    if 'b' in ages:
-        filter.extend(list(range(0, 12)))
-    if 'y' in ages:
-        filter.extend(list(range(12, 24)))
-    if 'a' in ages:
-        filter.extend(list(range(24, 96)))
-    if 's' in ages:
-        filter.extend(list(range(96, 240)))
-    return filter
+from . import utils
 
 
 class UserRegisterView(generics.CreateAPIView):
@@ -77,7 +65,7 @@ class RetrieveDogView(generics.RetrieveAPIView):
     def get_object(self):
         userpref = models.UserPref.objects.get(user=self.request.user)
         dogs = models.Dog.objects.filter(
-            age__in=age_filter(userpref.age),
+            age__in=utils.months_filter(userpref.age),
             gender__in=userpref.gender.split(','),
             size__in=userpref.size.split(','),
             behaviour__in=userpref.behaviour.split(',')
@@ -105,7 +93,7 @@ class RetrieveDogView(generics.RetrieveAPIView):
         if dog:
             serializer = serializers.DogSerializer(dog)
             return Response(serializer.data)
-        return Response(status=404)
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
 
 class RetrieveUpdateUserPrefView(generics.RetrieveUpdateAPIView):
@@ -113,7 +101,7 @@ class RetrieveUpdateUserPrefView(generics.RetrieveUpdateAPIView):
     serializer_class = serializers.UserPrefSerializer
 
     def get_object(self):
-        return self.get_queryset().get(user=self.request.user)
+        return self.queryset.get(user=self.request.user)
 
 
 class UpdateUserDogView(generics.UpdateAPIView):
@@ -129,11 +117,11 @@ class UpdateUserDogView(generics.UpdateAPIView):
         except ObjectDoesNotExist:
             return None
 
-    def put(self, request, pk, status, format=None):
+    def put(self, request, *args, **kwargs):
         userdog = self.get_object()
         if userdog:
-            userdog.status = status[0]
+            userdog.status = kwargs['status'][0]
             userdog.save()
             serializer = serializers.UserDogSerializer(userdog)
             return Response(serializer.data)
-        return Response(status=404)
+        return Response(status=status.HTTP_404_NOT_FOUND)

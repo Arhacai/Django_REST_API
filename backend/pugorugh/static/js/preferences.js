@@ -83,7 +83,7 @@ var Preferences = React.createClass({
         title: 'Behaviour',
         checkboxes: [{ label: "Confident", value: "c" }, { label: "Shy", value: "s" }, { label: "Independent", value: "i" }, { label: "Happy", value: "h" }, { label: "Aggressive", value: "a" }],
         data: this.state.data.behaviour,
-        onChange: this.handleCheckboxGroupDataChanged.bind(this, 'size'),
+        onChange: this.handleCheckboxGroupDataChanged.bind(this, 'behaviour'),
         atLeastOne: true
       }),
       React.createElement('hr', null),
