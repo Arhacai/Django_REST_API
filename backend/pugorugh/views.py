@@ -1,6 +1,8 @@
+import os
+
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 
 from . import models
@@ -37,11 +39,29 @@ class DestroyDogView(generics.DestroyAPIView):
     queryset = models.Dog.objects.all()
     serializer_class = serializers.DogSerializer
 
+    @staticmethod
+    def delete_imagefile(dog):
+        try:
+            os.remove(str(dog.image_filename.file))
+        except OSError:
+            return None
+
     def get_object(self):
         try:
-            return self.queryset.get(pk=self.kwargs.get('pk'))
+            dog = self.queryset.get(pk=self.kwargs.get('pk'))
         except ObjectDoesNotExist:
-            return Response(status=404)
+            return None
+        else:
+            return dog
+
+    def destroy(self, request, *args, **kwargs):
+        dog = self.get_object()
+        if dog:
+            models.UserDog.objects.filter(dog=dog).delete()
+            self.delete_imagefile(dog)
+            dog.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
 
 class RetrieveDogView(generics.RetrieveAPIView):
@@ -80,7 +100,7 @@ class RetrieveDogView(generics.RetrieveAPIView):
                 return dogs.get(pk=pks[0])
         return None
 
-    def get(self, request, pk, status, format=None):
+    def get(self, request, *args, **kwargs):
         dog = self.get_object()
         if dog:
             serializer = serializers.DogSerializer(dog)

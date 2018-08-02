@@ -25,7 +25,7 @@ class Dog(models.Model):
     )
 
     name = models.CharField(max_length=100, default='Unnamed')
-    image_filename = models.CharField(max_length=100, default='')
+    image_filename = models.ImageField(upload_to='', blank=True, null=True)
     breed = models.CharField(max_length=100, default='Unknown')
     age = models.IntegerField(default=1, blank=True)
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, default='u')
@@ -48,7 +48,8 @@ class UserDog(models.Model):
     status = models.CharField(max_length=1, choices=STATUS_CHOICES)
 
     def __str__(self):
-        return "{} actually {} {}".format(self.user.username.title(), self.get_status_display(), self.dog.name.title())
+        return "{} status is {} by {}".format(
+            self.dog.name.title(), self.get_status_display(), self.user.username.title())
 
 
 class UserPref(models.Model):
