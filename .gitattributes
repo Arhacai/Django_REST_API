@@ -1,1 +1,2 @@
-backend/pugorugh/static/* linguist-vendored
+backend/pugorugh/static/css/* linguist-vendored
+custom.css linguist-vendored=false
