@@ -1,5 +1,14 @@
+# Virtual environment
+venv/
+
+# Pycharm IDE files
 .idea
 .DS_Store
-__pycache__
+
+# All possible .pyc files
 *.pyc
-venv
+__pycache__
+
+# All coverage files
+.coverage
+htmlcov
